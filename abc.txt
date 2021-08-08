@@ -1,0 +1,121 @@
+Data Binding
+  - .ts -> .html
+    + Interpolation: {{ }} -> hiển thị các biến, toán tử 3 ngôi, phương thức, getter,...
+    + Property: [property_name] = "value"
+      VD: property_name: src, value, href, disabled, hidden
+    + Attribute: [attr.attribute_name] = "value"
+      VD: [attr.width] = "variableWidth", trong đó variableWidth: number = 200;
+    + Class Binding: [class.class_name] = "value"
+      Truyền nhiều class: [ngClass]="{'class1': expression1, 'class2': expression2,'class3': expression3}"
+    + Style Binding: [style.style_name] = "value"
+
+Event Binding ($event)
+  - .html -> .ts
+    VD: (click)="functionName($event)"
+        (keyup)="functionName($event)" // thường sử dụng cho ô input
+
+Two-way Binding [(ngModel)]
+
+@Input - Truyền data từ component cha -> component con.
+  Cần import Input
+  Cú pháp truyền [key_tự_đặt]="tên_biến"
+  VD: <component-con [profile]="name"></component-con>
+        Ở component con sẽ nhận lại data truyền vào: @Input('profile')
+                                            cách 2: sử dụng get/set
+
+@Output - Truyền data từ component con -> component cha.
+  Cần import Output, EventEmitter
+  Ở component con:
+    @Output("biến_này_sẽ_được_component_cha_nhận") biến_đẩy_data_ra_ngoài = new EventEmitter<kiểu_dữ_liệu>()
+    trong hàm: this.biến_đẩy_data_ra_ngoài.emit(this.biến_chứa_giá_trị_cần_đẩy)
+  Ở component cha có chứa thẻ component con:
+    <component-con (biến_này_sẽ_được_component_cha_nhận)="function($event)"></component-con>
+        function(data) { // data là giá trị từ component con gửi ra }
+
+Pipe
+  - uppercase
+  - lowercase
+  - titlecase: viết hoa các ký tự đầu (nếu là chữ Việt thì không được. VD: Đ)
+  - slice
+  - decimal: số | number: '1.0.3' // min.min-max
+    + 1: số chữ số phần nguyên - nếu thiếu tự thêm số 0
+    + 0: số chữ số thập phân tối thiểu - nếu thiếu tự thêm số 0
+    + 3: số chữ số thập phân tối đa
+  - percent: %
+  - currency (xử lý tiền tệ): số | currency[:code][:đơn_vị_tiền_tệ[:1.0-3]]
+    + code: theo chuẩn iso 4217
+    + đơn vị tiền tệ: true or false. VD: VND -> đ, USD -> $
+    VD: số | currency:'VND':true
+  - date:
+    VD: date | date: 'dd/MM/y hh:mm:ss a' . tham khảo DatePipe trang angular.io
+  - json
+  - async
+
+Custom Pipe -> xem folder pipes
+
+Template reference variables (tham chiếu tới phần từ DOM)
+  - Đặt tên cho 1 thẻ HTML: #tên_biến hoặc ref-tên_biến
+    + Sử dụng luôn bên Template: tên_biến.value
+        VD: Trong .html
+                      <input type="text" #txtName  />
+                      <button type="button" (click)="onGetData(txtName.value)">Lấy dữ liệu</button>
+            Trong .ts
+                      onGetData(txtName): void {
+                        console.log(txtName);
+                      }
+    + Sử dụng @ViewChild
+        VD: Trong .html
+                      <input type="text" #txtName  />
+                      <button type="button" (click)="onGetDataView()">Lấy dữ liệu</button>
+            Trong .ts
+                      @ViewChild('txtName') name: ElementRef;
+                        // ViewChild sẽ tham chiếu tới ô input có #txtName
+
+                      onGetDataView(txtName): void {
+                        console.log(this.name.nativeElement.value);
+                      }
+
+Observable: là một object bị theo dõi. Tức là khi nào có sự thay đổi thì nó sẽ nhảy vào một cái hàm,
+            trong cái hàm đấy sẽ xử lý ....
+            Giải quyết bất đồng bộ
+  - Import HttpClientModule
+  - .subscribe(): được hiểu như là mình đăng ký theo dõi sự thay đổi. Nó giống như .then trong promise
+
+
+BehaviorSubject: nó sẽ nhận giá trị cuối cùng được trả ra
+  - .next(): có nghĩa là thông báo với tất cả những thằng mà .subscribe tới BehaviorSubject
+
+ngContent
+  - Cú pháp: <ng-content></ng-content>
+  - Dùng để hiển thị các prop, html bên trong selector của một component
+      VD: <my-component> Nội dung bên trong </my-component> -> Toàn bộ nội dung bên trong sẽ được đưa vào ngContent
+  - Dùng <ng-content select=".class"></ng-content> // Dùng để lấy riêng một thẻ nào đó
+
+Lifecycle Hook:
+  - Mỗi hook sẽ thuộc về 1 interface
+
+  - Constructor: sẽ được gọi trước tất cả Lifecycle Hook, thường dùng để tiêm các Dependency Injection như Service
+
+  - ngOnchanges: được thực khi INPUT có sự thay đổi. Được quản lý thông qua đối tượng SimpleChanges,
+                 được gọi trước ngOnInit
+      SimpleChanges (tham số trong hàm ngOnchanges): Dùng để xử lý khi @Input có sự thay đổi
+        + currentValue: giá trị hiện tại
+        + previousValue: giá trị trước đó
+        + isFirstChange(): thay đổi lần đầu tiên ? true : false
+
+  - ngOnInit: dùng để khởi tạo giá trị - import OnInit, implement OnInit
+      + Khởi tạo directive/component sau khi hiển thị lần đầu tiên và set các thuộc tính đầu vào của directive/component
+      + Chỉ gọi một lần duy nhất, sau khi ngOnchanges() được gọi lần đầu tiên
+
+  - ngDoCheck: được gọi sau ngOnchanges và ngOnInit. Sau mỗi lần ngOnchanges được gọi thì ngDoCheck sẽ được gọi
+    . ngAfterContentInit: được gọi 1 lần duy nhất
+    . ngAfterContentChecked
+    . ngAfterView: được gọi khi khởi tạo view của component và các child views
+        + Chính là phần view hiện tại
+        + Xử lý Template + Template Reference Variables
+        +
+    . ngAfterViewChecked
+
+  - ngOnDestroy: hủy các kết nối, giải phóng bộ nhớ
+      Được gọi khi chuyển đổi, hủy, kết thúc 1 component
+

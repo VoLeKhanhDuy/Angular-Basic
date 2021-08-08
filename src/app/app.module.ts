@@ -3,10 +3,12 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
+import { FormatDataPipe } from './pipes/format-data.pipe';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    FormatDataPipe
   ],
   imports: [
     BrowserModule,
