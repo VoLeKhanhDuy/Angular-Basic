@@ -40,21 +40,32 @@ Binding từ file `.ts` sang `.html`
 - Attribute: `[attr.attribute_name] = "value"`
   VD: `[attr.width] = "variableWidth"`, trong đó variableWidth: number = 200;
 - Class Binding: `[class.class_name] = "value"`
-  Truyền nhiều class: `[ngClass]="{'class1': expression1, 'class2': expression2,'class3': expression3}"`
+  Truyền nhiều class: `[class]="{'class1': expression1, 'class2': expression2,'class3': expression3}"`
 - Style Binding: `[style.style_name] = "value"`
 
 ## Event Binding
 
 Binding từ file `.html` sang `.ts`
 
-```TypeScript
+```ts
+<button type="button" (click)="handler()">Click</button>
 (click)="functionName($event)"
 (keyup)="functionName($event)" // thường sử dụng cho ô input
 ```
 
+```ts
+handler() { }
+
+functionName(e) { }
+```
+
 ## Two-way Binding
 
+- Cần import FormsModule để sử dụng.
+
 `[(ngModel)]`
+Hoặc
+`[ngModel] = "name" (ngModelChange) = "name = $event"`
 
 ## Truyền dữ liệu giữa các Component
 
@@ -75,12 +86,13 @@ Binding từ file `.html` sang `.ts`
 
 - Cần import `Output`, `EventEmitter`
 - Ở component con:
-  @Output("biến*này_sẽ*được*component_cha_nhận") biến*đẩy*data_ra_ngoài = new EventEmitter<kiểu_dữ_liệu>()
-  trong hàm: this.biến*đẩy*data_ra_ngoài.emit(this.biến_chứa_giá_trị_cần*đẩy)
-  Ở component cha có chứa thẻ component con:
+  @Output("biến-này-sẽ-được-component-cha-nhận") biến-đẩy-data-ra-ngoài = new EventEmitter<kiểu_dữ_liệu>()
+  trong hàm: `this.biến-đẩy-data-ra-ngoài.emit(this.biến-chứa-giá-trị-cần-đẩy)`
+
+- Ở component cha có chứa thẻ component con:
 
 ```TypeScript
-<component-con (biến_này_sẽ_được_component_cha_nhận)="function($event)"></component-con>
+<component-con (biến-này-sẽ-được-component-cha-nhận)="function($event)"></component-con>
 
 function(data) { // data là giá trị từ component con gửi ra }
 ```
@@ -139,26 +151,53 @@ HTML sử dụng
 
   - Sử dụng luôn bên Template: `tên_biến.value`
     VD: Trong .html
-    `html <input type="text" #txtName /> <button type="button" (click)="onGetData(txtName.value)">Lấy dữ liệu</button> `
+    ```html
+    <input type="text" #txtName />
+    <button type="button" (click)="onGetData(txtName.value)">
+      Lấy dữ liệu
+    </button>
+    ```
     Trong .ts
-    `TypeScript onGetData(txtName): void { console.log(txtName); } `
+    ```TypeScript
+    onGetData(txtName): void { console.log(txtName); }
+    ```
   - Sử dụng `@ViewChild`
     VD: Trong .html
 
     ```html
+    <!-- txtName ở đây đc xem là HTMLElement -->
     <input type="text" #txtName />
     <button type="button" (click)="onGetDataView()">Lấy dữ liệu</button>
+
+    <!-- ##################### -->
+
+    <!-- 
+      toggleComp ở đây đc xem như là một instance của một component 
+      toggleComp sẽ truy cập được vào các hàm trong component-toggle
+    -->
+    <component-toggle #toggleComp></component-toggle>
     ```
 
     Trong .ts
 
     ```TypeScript
+    // vì #toggleComp nằm trong 1 thẻ component nên mới có kiểu ComponentToggle đó
+    @ViewChild('toggleComp') toggleComp: ComponentToggle;
+
+    // #################################
+
     @ViewChild('txtName') name: ElementRef; // name: là biến để lưu giá trị txtName
+    // ElementRef là khi biến #txtName nằm trong 1 HTMLElement
     // ViewChild sẽ tham chiếu tới ô input có #txtName
 
     onGetDataView(txtName): void {
       console.log(this.name.nativeElement.value);
     }
+
+    // Đọc thêm:
+    // static để gọi được trong ngOnInit
+    // Nếu sử dụng static thì component khai báo txtName phải không nằm trong Directive nào mới chạy được
+    @ViewChild('txtName', { static: true }) name: ElementRef;
     ```
 
 ## ngContent
